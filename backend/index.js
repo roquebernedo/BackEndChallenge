@@ -48,8 +48,8 @@ app.post('/order', async (req, res) => {
     //const user = req.user
 
     // Recuperar productos por sus IDs
-    const products = await Product.findById("657b586791afef4357834120")
-    console.log(products)
+    //const products = await Product.findById("657b586791afef4357834120")
+    //console.log(products)
 
     // Verificar si todos los IDs corresponden a productos válidos
   
@@ -57,7 +57,7 @@ app.post('/order', async (req, res) => {
       name: body.name,
       Order: body.Order,
       Date: new Date(),
-      Products: products,
+      Products: [],
     })
   
     const savedOrder = await order.save()
@@ -94,6 +94,19 @@ app.get("/order/:id", async (req, res) => {
     }
 })
 
+app.get("/order/:id/AddProduct", async (req, res) => {
+  try{
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    res.json(order); 
+  } catch (err){
+    res.status(500).json({ error: 'Server error' });
+  }
+})
+
 app.delete('/orderr/:id', async (request, response, next) => {
   try {
     const result = await Order.findByIdAndDelete(request.params.id);
@@ -102,6 +115,30 @@ app.delete('/orderr/:id', async (request, response, next) => {
     } else {
       response.status(404).json({ error: 'Order not found' });
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete('/delete-order/:id/product/:productId', async (request, response, next) => {
+  try {
+    const orderId = request.params.id;
+    const productId = request.params.productId;
+
+    const order = await Order.findById(orderId);
+    console.log(order)
+
+    if (!order) {
+      return response.status(404).json({ error: 'Order not found' });
+    }
+
+    // Filtrar los productos, manteniendo solo aquellos que no coinciden con el productId
+    order.Products = order.Products.filter(product => String(product._id) !== productId);
+
+    // Guardar la orden actualizada
+    await order.save();
+
+    response.status(204).end();
   } catch (error) {
     next(error);
   }
