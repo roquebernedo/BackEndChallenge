@@ -77,8 +77,8 @@ app.put('/orden/:id', async (request, response, next) => {
 
   existingOrder.Products.push(productToAdd);
 
-  const updatedBlog = await Order.findByIdAndUpdate(request.params.id, existingOrder, {new: true})
-  response.json(updatedBlog)
+  const updatedOrder = await Order.findByIdAndUpdate(request.params.id, existingOrder, {new: true})
+  response.json(updatedOrder)
 })
 
 app.get("/order/:id", async (req, res) => {
